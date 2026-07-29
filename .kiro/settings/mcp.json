@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "uvx",
+      "args": ["mcp-server-filesystem", "."],
+      "disabled": false,
+      "autoApprove": ["read_file", "list_directory"]
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "."],
+      "disabled": false,
+      "autoApprove": ["git_status", "git_diff", "git_log"]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  },
+  "_notes": "Also enable the AWS Documentation Power via the Kiro UI (Powers panel) for on-tap AWS deployment guidance, and the Amazon Bedrock Power if you extend Sentinel with a hosted model. Powers bundle MCP tools + steering + hooks and activate automatically; document which ones you used in the README."
+}
