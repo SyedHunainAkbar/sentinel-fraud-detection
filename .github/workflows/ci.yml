@@ -15,11 +15,13 @@ jobs:
         run: pip install -r requirements.txt
       - name: Lint
         run: ruff check src tests
-      - name: Generate sample + run pipeline
+      - name: Generate sample + run full pipeline
         run: |
           python scripts/generate_sample.py
           python -m sentinel.train
           python -m sentinel.evaluate
+          python -m sentinel.risk_quant.quant_report
+          python -m sentinel.copilot.demo
         env:
           PYTHONPATH: src
       - name: Tests

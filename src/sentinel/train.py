@@ -30,6 +30,7 @@ def main() -> None:
         "models": {"baseline": baseline, "xgboost": xgb, "isolation_forest": iso},
         "y_test": y_test.to_numpy(),
         "amount_test": amt_test.to_numpy(),
+        "time_test": test_df["unix_time"].to_numpy(),
         "preds": preds,
         "time_range": (
             f"{df['trans_date_trans_time'].min()} .. {df['trans_date_trans_time'].max()}"

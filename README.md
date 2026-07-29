@@ -19,9 +19,13 @@ and task is version-controlled under `.kiro/`.
 This is a portfolio piece deliberately built to speak to three roles at once:
 
 - **Data Scientist** — leakage-free temporal validation, class-imbalance handling,
-  model calibration, SHAP explainability, tested and reproducible code.
-- **Quant** — an explicit cost matrix, expected-loss derivation, cost-optimal threshold
-  selection, and time-ordered backtesting.
+  model calibration, SHAP explainability, a RAG + agentic investigation copilot, tested
+  and reproducible code.
+- **Quantitative / Model Risk** — an explicit cost matrix, expected-loss derivation, and a
+  full risk layer: VaR / Expected Shortfall on the undetected-loss distribution,
+  walk-forward out-of-time backtesting with bootstrap confidence intervals, and PSI drift.
+  *(This maps to quantitative-risk / model-risk / credit-risk quant roles — not trading
+  quant; positioned honestly.)*
 - **Business Analyst** — an executive summary that leads with dollars saved, alert-budget
   tradeoffs, and a Streamlit dashboard for non-technical stakeholders.
 
@@ -57,6 +61,40 @@ Every decision is scored against a cost matrix (see `.kiro/steering/risk.md`):
 
 We sweep every candidate threshold and select `argmin cost(t)` — never the default 0.5.
 
+## Agentic AI + RAG: the investigation copilot
+
+A flagged transaction is only the start of the work. The copilot (`src/sentinel/copilot/`)
+is a **tool-using agent** that turns a flag into an auditable, **cited** disposition:
+
+```
+score_transaction → get_customer_history → retrieve_policy (RAG) → draft_disposition (LLM)
+```
+
+- **RAG** retrieves the most relevant fraud typology / playbook / regulatory chunks from
+  `data/policies/` and every recommendation cites the chunk ids it used — no ungrounded
+  claims (critical in a regulated domain).
+- The agent records a **decision trace** of each tool call for audit, and is
+  human-in-the-loop: it recommends `escalate | clear | request_info`; an analyst decides.
+- Retrieval runs offline (TF-IDF) for tests/CI and swaps to embeddings in production; the
+  LLM adapter uses Claude when a key is present and a deterministic fallback otherwise.
+  The workflow maps directly onto a LangGraph StateGraph (documented in the spec).
+
+Run it: `make copilot` → writes `reports/investigations.json`.
+
+## Quant risk layer: from a classifier to a risk model
+
+The quant layer (`src/sentinel/risk_quant/`) treats undetected fraud as a **loss
+distribution** and validates the policy like a strategy:
+
+- **VaR & Expected Shortfall** on residual (undetected) fraud loss, via block bootstrap
+  and a Monte Carlo cross-check.
+- **Walk-forward out-of-time backtest**: threshold fit on earlier windows, realized
+  dollars-saved measured on strictly later windows, reported with per-window P&L,
+  volatility, worst window, and consistency — plus a **bootstrap confidence interval**.
+- **PSI** (Population Stability Index) for feature drift; PSI > 0.25 flags material shift.
+
+Run it: `make quant-risk` → writes `reports/quant_risk.json`.
+
 ## Quickstart
 
 ```bash
@@ -64,6 +102,8 @@ make setup      # install dependencies
 make sample     # generate a tiny synthetic sample (offline; for tests/CI)
 make train      # train models, persist artifacts
 make evaluate   # metrics + cost-optimal threshold -> reports/evaluation.json
+make quant-risk # VaR/ES + out-of-time backtest -> reports/quant_risk.json
+make copilot    # RAG + agent investigation demo -> reports/investigations.json
 make model-card # governance model card from the evaluation
 make dashboard  # Streamlit executive dashboard
 make api        # FastAPI scoring service
@@ -87,8 +127,8 @@ make train evaluate
 ## Results
 
 Numbers below are produced by `make evaluate` and read from `reports/evaluation.json`.
-*(The committed sample is synthetic and intentionally easy — real numbers come from the
-Sparkov dataset.)*
+*(The committed sample is synthetic and intentionally easy — on it the model catches all
+fraud so VaR/ES read ~$0. Real, non-trivial numbers come from the Sparkov dataset.)*
 
 | Model | PR-AUC | KS | Precision@k | Recall@budget | Expected loss |
 |-------|--------|----|-------------|---------------|---------------|
@@ -102,7 +142,7 @@ This project intentionally exercises the full Kiro workflow — see `.kiro/`:
 
 | Kiro feature | Where | What it does here |
 |--------------|-------|-------------------|
-| **Spec-driven development** | `.kiro/specs/fraud-detection/` | requirements, design (+ data-flow diagram), granular tasks |
+| **Spec-driven development** | `.kiro/specs/{fraud-detection,fraud-copilot,quant-risk}/` | three specs (pipeline, RAG+agent copilot, quant risk), each with requirements, design + diagram, and granular tasks |
 | **Steering** | `.kiro/steering/` | product, tech, structure, and fraud-economics (`risk.md`) context applied to every generation |
 | **Agent hooks** | `.kiro/hooks/` | on-save lint+test, docs-in-sync on task completion, pre-commit PII/secret scan |
 | **Agent skills** | `.kiro/skills/` | reusable `fraud-feature-engineering` and `model-card` skills with scripts |
@@ -114,11 +154,15 @@ This project intentionally exercises the full Kiro workflow — see `.kiro/`:
 
 ```
 .kiro/            # specs, steering, hooks, skills, mcp — the Kiro workflow
-src/sentinel/     # ingest, features, models, evaluation, train, evaluate, serving
-tests/            # pytest (features + cost-sensitive evaluation)
-scripts/          # data download + synthetic-sample generator
-data/sample/      # tiny committed sample; real data is gitignored
-reports/          # generated evaluation.json, model_card.md, plots
+src/sentinel/
+  ingest / features / models / evaluation / train / evaluate   # core ML pipeline
+  risk_quant/     # VaR, Expected Shortfall, backtest, PSI (quant risk layer)
+  copilot/        # RAG retriever + tool-using investigation agent
+  serving/        # FastAPI /score + Streamlit dashboard
+tests/            # pytest (features, evaluation, risk_quant, copilot)
+data/policies/    # synthetic policy corpus for RAG (safe to commit)
+data/sample/      # tiny committed sample; real transaction data is gitignored
+reports/          # generated evaluation.json, quant_risk.json, investigations.json, model_card.md
 ```
 
 ## License
