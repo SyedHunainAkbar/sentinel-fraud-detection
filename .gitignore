@@ -8,6 +8,7 @@ data/*
 models/
 reports/*.json
 reports/*.png
+!reports/demo/
 
 # Secrets / Kaggle creds
 .env

@@ -11,14 +11,29 @@ from .. import config
 st.set_page_config(page_title="Sentinel — Fraud Detection", layout="wide")
 st.title("Sentinel — Cost-Sensitive Fraud Detection")
 
+# Helper: resolve report path (fall back to committed demo/ samples for cloud deploy)
+DEMO_DIR = config.REPORTS_DIR / "demo"
+
+
+def _report_path(name: str):
+    """Return the live report if it exists, else the committed demo copy."""
+    live = config.REPORTS_DIR / name
+    if live.exists():
+        return live
+    demo = DEMO_DIR / name
+    if demo.exists():
+        return demo
+    return None
+
+
 tab_exec, tab_analyst, tab_risk = st.tabs(["Executive", "Analyst", "Risk"])
 
 # ---------------------------------------------------------------------------
 # Tab 1: Executive dashboard (reads reports/evaluation.json)
 # ---------------------------------------------------------------------------
 with tab_exec:
-    path = config.REPORTS_DIR / "evaluation.json"
-    if not path.exists():
+    path = _report_path("evaluation.json")
+    if not path:
         st.warning("No evaluation found. Run `make train && make evaluate` first.")
     else:
         rep = json.loads(path.read_text())
@@ -162,8 +177,8 @@ with tab_analyst:
 with tab_risk:
     st.subheader("Quantitative Risk Analytics")
 
-    qr_path = config.REPORTS_DIR / "quant_risk.json"
-    if not qr_path.exists():
+    qr_path = _report_path("quant_risk.json")
+    if not qr_path:
         st.warning(
             "No quant risk report found. Run `make quant-risk` first."
         )
