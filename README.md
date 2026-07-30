@@ -194,13 +194,13 @@ Results: `reports/benchmark_ulb.json`.
 
 | Metric | Sparkov (primary) | ULB (benchmark) |
 |--------|:-----------------:|:---------------:|
-| PR-AUC | 0.905 | *(run `make benchmark-ulb`)* |
-| ROC-AUC | 0.998 | *(run `make benchmark-ulb`)* |
-| KS | 0.961 | *(run `make benchmark-ulb`)* |
-| Dollars saved | $1,251,293 | *(run `make benchmark-ulb`)* |
+| PR-AUC | 0.905 | 0.809 |
+| ROC-AUC | 0.998 | 0.982 |
+| KS | 0.961 | 0.889 |
+| Dollars saved | $1,251,293 | $11,932 |
 
-*Download `creditcard.csv` from [Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud),
-place in `data/raw/`, and run `make benchmark-ulb` to fill ULB column.*
+*Same XGBoost architecture on two independent datasets — confirms the cost-sensitive
+approach generalizes.*
 
 ## How every Kiro feature is used
 
