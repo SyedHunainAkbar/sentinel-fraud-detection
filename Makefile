@@ -1,7 +1,7 @@
 .PHONY: setup sample data features train evaluate holdout model-card drift shap hyperparam benchmark-ulb dashboard api test lint all clean
 
 setup:            ## Install dependencies
-	pip install -r requirements.txt
+	pip install -r requirements-full.txt
 
 sample:           ## Regenerate the tiny synthetic sample (for tests/CI)
 	python scripts/generate_sample.py
