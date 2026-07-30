@@ -33,6 +33,7 @@ CATEGORICAL_FEATURES = ["category", "gender", "state"]
 NUMERIC_FEATURES = [
     "distance_km", "hour", "day_of_week", "is_night", "age",
     "log_amt", "amt_z_by_cat", "velocity_24h", "city_pop_log",
+    "home_deviation_km",
 ]
 
 # Drift monitoring

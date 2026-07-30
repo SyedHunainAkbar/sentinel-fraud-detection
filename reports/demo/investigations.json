@@ -1,27 +1,27 @@
 [
   {
-    "transaction_id": "3abff75e07e041f7c4b5188c0146edcf",
-    "probability": 0.999927282333374,
+    "transaction_id": "t000113",
+    "probability": 0.9989991784095764,
     "recommendation": "escalate",
-    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 37 recent txns; median amt $73. Escalation warranted per playbook.",
+    "rationale": "Model probability is 100% \u2014 well above the escalation threshold. The pattern matches 'High-value single-shot'. Customer history: 23 recent txns; median amt $65. Escalation warranted per playbook.",
     "citations": [
-      "01_fraud_typologies.md#2",
       "01_fraud_typologies.md#4",
+      "01_fraud_typologies.md#2",
       "01_fraud_typologies.md#1"
     ],
     "confidence": 0.8,
     "trace": [
       {
         "tool": "score_transaction",
-        "output": "probability=1.000"
+        "output": "probability=0.999"
       },
       {
         "tool": "get_customer_history",
-        "output": "37 recent txns; median amt $73"
+        "output": "23 recent txns; median amt $65"
       },
       {
         "tool": "retrieve_policy",
-        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#4, 01_fraud_typologies.md#1"
+        "output": "01_fraud_typologies.md#4, 01_fraud_typologies.md#2, 01_fraud_typologies.md#1"
       },
       {
         "tool": "draft_disposition",
@@ -30,40 +30,10 @@
     ]
   },
   {
-    "transaction_id": "4d1fdd8eb40c93c605909223b4d05ba4",
-    "probability": 0.9998685121536255,
+    "transaction_id": "t000914",
+    "probability": 0.9996480941772461,
     "recommendation": "escalate",
-    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 28 recent txns; median amt $54. Escalation warranted per playbook.",
-    "citations": [
-      "01_fraud_typologies.md#2",
-      "01_fraud_typologies.md#4",
-      "01_fraud_typologies.md#1"
-    ],
-    "confidence": 0.8,
-    "trace": [
-      {
-        "tool": "score_transaction",
-        "output": "probability=1.000"
-      },
-      {
-        "tool": "get_customer_history",
-        "output": "28 recent txns; median amt $54"
-      },
-      {
-        "tool": "retrieve_policy",
-        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#4, 01_fraud_typologies.md#1"
-      },
-      {
-        "tool": "draft_disposition",
-        "output": "escalate (fallback)"
-      }
-    ]
-  },
-  {
-    "transaction_id": "c92fabaf967b7445d734d814e6b55339",
-    "probability": 0.9998642206192017,
-    "recommendation": "escalate",
-    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 26 recent txns; median amt $71. Escalation warranted per playbook.",
+    "rationale": "Model probability is 100% \u2014 well above the escalation threshold. The pattern matches 'Geographic impossibility'. Customer history: 29 recent txns; median amt $53. Escalation warranted per playbook.",
     "citations": [
       "01_fraud_typologies.md#2",
       "01_fraud_typologies.md#3"
@@ -76,7 +46,7 @@
       },
       {
         "tool": "get_customer_history",
-        "output": "26 recent txns; median amt $71"
+        "output": "29 recent txns; median amt $53"
       },
       {
         "tool": "retrieve_policy",
@@ -89,12 +59,43 @@
     ]
   },
   {
-    "transaction_id": "042ad4eb854d85b1602e6f8110c82f56",
-    "probability": 0.999862790107727,
+    "transaction_id": "t001183",
+    "probability": 0.9987697005271912,
     "recommendation": "escalate",
-    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 17 recent txns; median amt $23. Escalation warranted per playbook.",
+    "rationale": "Model probability is 100% \u2014 well above the escalation threshold. The pattern matches 'Geographic impossibility'. Customer history: 36 recent txns; median amt $78. Escalation warranted per playbook.",
     "citations": [
       "01_fraud_typologies.md#2",
+      "01_fraud_typologies.md#4",
+      "01_fraud_typologies.md#1"
+    ],
+    "confidence": 0.8,
+    "trace": [
+      {
+        "tool": "score_transaction",
+        "output": "probability=0.999"
+      },
+      {
+        "tool": "get_customer_history",
+        "output": "36 recent txns; median amt $78"
+      },
+      {
+        "tool": "retrieve_policy",
+        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#4, 01_fraud_typologies.md#1"
+      },
+      {
+        "tool": "draft_disposition",
+        "output": "escalate (fallback)"
+      }
+    ]
+  },
+  {
+    "transaction_id": "t000728",
+    "probability": 0.9997007846832275,
+    "recommendation": "escalate",
+    "rationale": "Model probability is 100% \u2014 well above the escalation threshold. The pattern matches 'Geographic impossibility'. Customer history: 32 recent txns; median amt $56. Escalation warranted per playbook.",
+    "citations": [
+      "01_fraud_typologies.md#2",
+      "01_fraud_typologies.md#4",
       "01_fraud_typologies.md#3"
     ],
     "confidence": 0.8,
@@ -105,11 +106,11 @@
       },
       {
         "tool": "get_customer_history",
-        "output": "17 recent txns; median amt $23"
+        "output": "32 recent txns; median amt $56"
       },
       {
         "tool": "retrieve_policy",
-        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#3"
+        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#4, 01_fraud_typologies.md#3"
       },
       {
         "tool": "draft_disposition",
@@ -118,10 +119,10 @@
     ]
   },
   {
-    "transaction_id": "3b7c3a3dd370f323e6aa30a25d8a6824",
-    "probability": 0.9998562335968018,
+    "transaction_id": "t001098",
+    "probability": 0.9985194802284241,
     "recommendation": "escalate",
-    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 23 recent txns; median amt $64. Escalation warranted per playbook.",
+    "rationale": "Model probability is 100% \u2014 well above the escalation threshold. The pattern matches 'Geographic impossibility'. Customer history: 38 recent txns; median amt $51. Escalation warranted per playbook.",
     "citations": [
       "01_fraud_typologies.md#2",
       "01_fraud_typologies.md#4",
@@ -131,11 +132,11 @@
     "trace": [
       {
         "tool": "score_transaction",
-        "output": "probability=1.000"
+        "output": "probability=0.999"
       },
       {
         "tool": "get_customer_history",
-        "output": "23 recent txns; median amt $64"
+        "output": "38 recent txns; median amt $51"
       },
       {
         "tool": "retrieve_policy",

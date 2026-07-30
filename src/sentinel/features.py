@@ -34,6 +34,61 @@ def causal_velocity_24h(cc_num, unix_time):
     return out
 
 
+def causal_home_deviation(cc_num, unix_time, merch_lat, merch_long, home_lat, home_long):
+    """Distance from merchant to the running mean of a card's PRIOR merchant locations.
+
+    For each transaction in time order per card, computes the haversine distance from
+    the current merchant to the centroid of all PRIOR merchants for that card. The first
+    transaction per card falls back to haversine(home, merchant).
+
+    This is a causal feature: adding a later transaction never changes earlier values.
+
+    Parameters
+    ----------
+    cc_num : array-like
+        Card identifiers.
+    unix_time : array-like
+        Transaction timestamps (for ordering).
+    merch_lat, merch_long : array-like
+        Merchant coordinates.
+    home_lat, home_long : array-like
+        Cardholder home coordinates (fallback for first transaction).
+
+    Returns
+    -------
+    ndarray
+        Distance in km from merchant to running mean of prior merchant locations.
+    """
+    cc = np.asarray(cc_num)
+    t = np.asarray(unix_time, dtype=float)
+    mlat = np.asarray(merch_lat, dtype=float)
+    mlon = np.asarray(merch_long, dtype=float)
+    hlat = np.asarray(home_lat, dtype=float)
+    hlon = np.asarray(home_long, dtype=float)
+
+    out = np.zeros(len(cc), dtype=float)
+    order = np.lexsort((t, cc))
+
+    for card in np.unique(cc):
+        idx = order[cc[order] == card]
+        # Process in time order for this card
+        cum_lat = 0.0
+        cum_lon = 0.0
+        for seq, i in enumerate(idx):
+            if seq == 0:
+                # First transaction: distance from home to merchant
+                out[i] = haversine_km(hlat[i], hlon[i], mlat[i], mlon[i])
+            else:
+                # Mean of all prior merchant locations
+                mean_lat = cum_lat / seq
+                mean_lon = cum_lon / seq
+                out[i] = haversine_km(mean_lat, mean_lon, mlat[i], mlon[i])
+            cum_lat += mlat[i]
+            cum_lon += mlon[i]
+
+    return out
+
+
 class FeatureBuilder:
     """Fit-once/transform-many feature builder with no train->test leakage."""
 
@@ -71,6 +126,11 @@ class FeatureBuilder:
         ]
         out["velocity_24h"] = causal_velocity_24h(df["cc_num"].values, df["unix_time"].values)
         out["city_pop_log"] = np.log1p(df["city_pop"])
+        out["home_deviation_km"] = causal_home_deviation(
+            df["cc_num"].values, df["unix_time"].values,
+            df["merch_lat"].values, df["merch_long"].values,
+            df["lat"].values, df["long"].values,
+        )
         for c in config.CATEGORICAL_FEATURES:
             out[c] = df[c].astype("category")
 

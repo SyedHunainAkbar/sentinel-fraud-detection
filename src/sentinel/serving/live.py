@@ -50,7 +50,7 @@ EXAMPLES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "Large purchase — but local & daytime (model stays calm)",
+        "name": "Large purchase — but local & daytime (model stays calm, ~19%)",
         "txn": {
             "trans_date_trans_time": "2020-06-15 14:10:00",
             "cc_num": 4012000033330026,

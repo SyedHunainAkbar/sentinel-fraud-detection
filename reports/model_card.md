@@ -2,7 +2,7 @@
 
 ## Model details
 - **Name:** Sentinel fraud scorer
-- **Best model:** baseline
+- **Best model:** xgboost
 - **Version:** 0.1.0
 - **Date:** 2026-07-30
 
@@ -13,24 +13,24 @@ _Not_ intended as a sole automated decline mechanism without human review.
 
 ## Training data
 - **Source:** Sparkov simulated transactions (Kaggle)
-- **Time range:** 2020-01-01 00:44:49 .. 2020-02-29 23:10:03
-- **Fraud prevalence:** 1.33%
+- **Time range:** 2019-01-01 00:00:18 .. 2020-06-21 12:13:37
+- **Fraud prevalence:** 0.58%
 
-## Metrics (baseline)
+## Metrics (xgboost)
 | Metric | Value |
 |---|---|
-| PR-AUC | 1.0000 |
-| ROC-AUC | 1.0000 |
-| KS statistic | 1.0000 |
-| Brier score | 0.0005 |
-| Precision@k | 1.0000 |
-| Recall @ alert budget | 0.2000 |
+| PR-AUC | 0.9085 |
+| ROC-AUC | 0.9983 |
+| KS statistic | 0.9630 |
+| Brier score | 0.0049 |
+| Precision@k | 0.9368 |
+| Recall @ alert budget | 0.7639 |
 
 ## Cost analysis
-- **Cost-optimal threshold:** 0.0300
-- **Expected dollar loss @ threshold:** $15.00
-- **Naive (always-legit) loss:** $1,669.49
-- **Dollars saved vs. naive:** $1,654.49
+- **Cost-optimal threshold:** 0.2027
+- **Expected dollar loss @ threshold:** $28,856.03
+- **Naive (always-legit) loss:** $1,279,077.70
+- **Dollars saved vs. naive:** $1,250,221.67
 
 ## Limitations
 Severe class imbalance; results on simulated data may not transfer to production

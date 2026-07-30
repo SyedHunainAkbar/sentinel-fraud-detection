@@ -134,11 +134,11 @@ Numbers below are produced by `make evaluate` on the full Sparkov dataset (1.3M 
 
 | Model | PR-AUC | KS | Precision@k | Recall@budget | Expected loss |
 |-------|--------|----|-------------|---------------|---------------|
-| Logistic (calibrated) | 0.256 | 0.664 | 0.449 | 0.366 | $223,513 |
-| **XGBoost** | **0.905** | **0.961** | **0.935** | **0.762** | **$27,785** |
-| Isolation Forest | 0.118 | 0.662 | — | — | $255,294 |
+| Logistic (calibrated) | 0.256 | 0.664 | 0.449 | 0.366 | $224,393 |
+| **XGBoost** | **0.909** | **0.963** | **0.935** | **0.762** | **$28,856** |
+| Isolation Forest | 0.083 | 0.569 | — | — | $443,904 |
 
-**Dollars saved: $1,251,293** vs. a naive (no-model) baseline. Best model: XGBoost.
+**Dollars saved: $1,250,222** vs. a naive (no-model) baseline. Best model: XGBoost.
 
 ### Temporal split vs external hold-out
 
@@ -151,13 +151,13 @@ Run `make holdout` after `make train` to produce `reports/holdout_eval.json`.
 
 | Metric | Temporal split (in-sample test) | External hold-out (fraudTest.csv) |
 |--------|:-------------------------------:|:---------------------------------:|
-| PR-AUC | 0.905 | 0.018 |
+| PR-AUC | 0.909 | 0.018 |
 | ROC-AUC | 0.998 | 0.761 |
-| KS statistic | 0.961 | 0.603 |
+| KS statistic | 0.963 | 0.603 |
 | Brier score | 0.005 | — |
 | Optimal threshold | 0.289 | 0.010 |
-| Expected loss ($) | $27,785 | $345,080 |
-| Dollars saved ($) | $1,251,293 | $788,245 |
+| Expected loss ($) | $28,856 | $345,080 |
+| Dollars saved ($) | $1,250,222 | $788,245 |
 
 The holdout PR-AUC is lower because the model was threshold-optimized for the temporal
 split's probability distribution. The **dollars saved remain substantial** ($788K) on
@@ -194,13 +194,39 @@ Results: `reports/benchmark_ulb.json`.
 
 | Metric | Sparkov (primary) | ULB (benchmark) |
 |--------|:-----------------:|:---------------:|
-| PR-AUC | 0.905 | 0.809 |
+| PR-AUC | 0.909 | 0.809 |
 | ROC-AUC | 0.998 | 0.982 |
-| KS | 0.961 | 0.889 |
-| Dollars saved | $1,251,293 | $11,932 |
+| KS | 0.963 | 0.889 |
+| Dollars saved | $1,250,222 | $11,932 |
 
 *Same XGBoost architecture on two independent datasets — confirms the cost-sensitive
 approach generalizes.*
+
+## Modeling notes & honest limitations
+
+**`home_deviation_km`** — For each card in time order, this feature computes the haversine
+distance from the current merchant to the running mean of that card's prior merchant
+locations. The first transaction per card falls back to haversine(cardholder home,
+merchant). This is fully **causal** (no future data leaks into earlier rows) and is
+designed to surface geographic anomalies (e.g., a card normally used locally suddenly
+appearing at a merchant 2,000 km away).
+
+**Important caveat:** The "home" coordinates in this dataset are the cardholder's
+registered address — a **static postal proxy**, not IP geolocation or device GPS. This
+means the feature captures address-to-merchant distance patterns, which is useful for
+card-present fraud (stolen cards used far from home) but does NOT detect:
+- VPN/proxy masking in online transactions
+- Legitimate travel (a genuine cardholder on vacation triggers the same signal)
+- Address changes that haven't been updated with the issuer
+
+Other limitations:
+- The Sparkov dataset is **simulated** — results may not transfer directly to production
+  fraud distributions
+- The model has not been evaluated for **fairness** across demographic segments
+- **Concept drift** will degrade performance over time; the drift monitor flags this but
+  a human must decide when to retrain
+- The isolation forest performs poorly (PR-AUC 0.08) — it's included as a baseline, not
+  a production candidate
 
 ## How every Kiro feature is used
 

@@ -23,6 +23,7 @@ def training_data():
         "amt_z_by_cat": rng.normal(0, 1, n),
         "velocity_24h": rng.integers(0, 10, n),
         "city_pop_log": rng.normal(10, 2, n),
+        "home_deviation_km": rng.exponential(50, n),
         "category": rng.choice(["grocery", "shopping", "gas"], n),
         "gender": rng.choice(["M", "F"], n),
         "state": rng.choice(["TX", "CA", "NY"], n),

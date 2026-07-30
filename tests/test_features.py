@@ -2,7 +2,12 @@
 import numpy as np
 import pandas as pd
 
-from sentinel.features import FeatureBuilder, causal_velocity_24h, haversine_km
+from sentinel.features import (
+    FeatureBuilder,
+    causal_home_deviation,
+    causal_velocity_24h,
+    haversine_km,
+)
 
 
 def test_haversine_known_distance():
@@ -101,3 +106,65 @@ def test_haversine_vectorized():
     assert 110 < float(result[0]) < 112
     # Second: London to Paris ~ 340 km
     assert 330 < float(result[1]) < 350
+
+
+# --- Tests for causal_home_deviation ---
+
+
+def test_home_deviation_3_transaction_card():
+    """Exact distances on a 3-transaction card.
+
+    Card 1 at times [1, 2, 3]:
+    - Txn 0: first txn → fallback to haversine(home, merchant0)
+    - Txn 1: mean of prior merchants = merchant0 → haversine(merchant0, merchant1)
+    - Txn 2: mean of prior merchants = midpoint(merchant0, merchant1)
+             → haversine(midpoint, merchant2)
+    """
+    cc_num = [1, 1, 1]
+    unix_time = [100, 200, 300]
+    # Home at (0, 0); merchants at (0,1), (0,2), (0,3) degrees longitude on equator
+    home_lat = [0.0, 0.0, 0.0]
+    home_long = [0.0, 0.0, 0.0]
+    merch_lat = [0.0, 0.0, 0.0]
+    merch_long = [1.0, 2.0, 3.0]
+
+    result = causal_home_deviation(cc_num, unix_time, merch_lat, merch_long,
+                                   home_lat, home_long)
+
+    # Txn 0: haversine((0,0), (0,1)) ~ 111 km
+    assert 110 < result[0] < 112
+
+    # Txn 1: prior mean = (0,1); haversine((0,1), (0,2)) ~ 111 km
+    assert 110 < result[1] < 112
+
+    # Txn 2: prior mean = (0, 1.5); haversine((0,1.5), (0,3)) ~ 167 km
+    assert 165 < result[2] < 168
+
+
+def test_home_deviation_causality():
+    """Adding a later transaction must not change earlier values."""
+    cc_num_short = [1, 1, 1]
+    unix_time_short = [100, 200, 300]
+    merch_lat = [0.0, 0.0, 0.0]
+    merch_long = [1.0, 2.0, 3.0]
+    home_lat = [0.0, 0.0, 0.0]
+    home_long = [0.0, 0.0, 0.0]
+
+    result_short = causal_home_deviation(cc_num_short, unix_time_short,
+                                         merch_lat, merch_long,
+                                         home_lat, home_long)
+
+    # Now add a 4th transaction
+    cc_num_long = [1, 1, 1, 1]
+    unix_time_long = [100, 200, 300, 400]
+    merch_lat_long = [0.0, 0.0, 0.0, 0.0]
+    merch_long_long = [1.0, 2.0, 3.0, 10.0]
+    home_lat_long = [0.0, 0.0, 0.0, 0.0]
+    home_long_long = [0.0, 0.0, 0.0, 0.0]
+
+    result_long = causal_home_deviation(cc_num_long, unix_time_long,
+                                        merch_lat_long, merch_long_long,
+                                        home_lat_long, home_long_long)
+
+    # First 3 values must be identical — causality preserved
+    np.testing.assert_array_almost_equal(result_short, result_long[:3], decimal=6)

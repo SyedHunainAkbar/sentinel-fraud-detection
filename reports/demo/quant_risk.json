@@ -1,35 +1,35 @@
 {
   "best_model": "baseline",
-  "threshold": 0.03,
+  "threshold": 0.04,
   "loss_risk_var_es": {
     "alpha": 0.95,
-    "threshold": 0.03,
+    "threshold": 0.04,
     "bootstrap": {
       "mean": 0.0,
       "var": 0.0,
       "expected_shortfall": 0.0
     },
     "monte_carlo": {
-      "mean": 164.854875,
-      "var": 416.0015,
-      "expected_shortfall": 501.2324
+      "mean": 168.12465,
+      "var": 421.4334999999999,
+      "expected_shortfall": 508.30279999999993
     }
   },
   "backtest": {
     "per_window_pnl": [
       226.97,
-      0.0,
+      -3.0,
       379.62,
       523.05
     ],
-    "mean_pnl": 282.40999999999997,
-    "pnl_volatility": 193.76944766913073,
-    "worst_window": 0.0,
+    "mean_pnl": 281.65999999999997,
+    "pnl_volatility": 194.8638020515868,
+    "worst_window": -3.0,
     "consistency": 0.75
   },
   "dollars_saved_ci": {
-    "mean": 282.40999999999997,
-    "lower": 94.905,
+    "mean": 281.65999999999997,
+    "lower": 92.655,
     "upper": 451.335
   },
   "psi": {
@@ -42,10 +42,11 @@
       "log_amt": 0.02829389303343527,
       "amt_z_by_cat": 0.06061229252659685,
       "velocity_24h": 0.003139177913777716,
-      "city_pop_log": 0.05784150770372706
+      "city_pop_log": 0.05784150770372706,
+      "home_deviation_km": 0.07742276919699562
     },
-    "max_feature": "amt_z_by_cat",
-    "max_value": 0.06061229252659685,
+    "max_feature": "home_deviation_km",
+    "max_value": 0.07742276919699562,
     "warning_threshold": 0.1,
     "critical_threshold": 0.25
   },
@@ -65,16 +66,16 @@
         1.0
       ],
       "mean_predicted": [
-        0.005839088681007041,
+        0.006010489608429336,
         0.15000000000000002,
         0.25,
         0.35000000000000003,
         0.45,
         0.55,
-        0.6971803813404504,
-        0.7405158236458184,
+        0.6917281309363298,
+        0.7322762714126245,
         0.8500000000000001,
-        0.9928730126940968
+        0.9929094529686059
       ],
       "fraction_positive": [
         0.0,
@@ -102,8 +103,8 @@
       ]
     },
     "brier_decomposition": {
-      "brier_score": 0.0004919722732232723,
-      "reliability": 0.0004757995851923737,
+      "brier_score": 0.0005175467687956772,
+      "reliability": 0.0004991197013043798,
       "resolution": 0.01369598765432099,
       "uncertainty": 0.013695987654320988,
       "base_rate": 0.013888888888888888,
