@@ -232,7 +232,9 @@ def _render_csv_mode(model, fb) -> None:
                 "Score a bundled sample (300 real transactions)",
             )
 
-    uploaded = st.file_uploader("Upload transactions CSV", type=["csv"])
+    uploaded = st.file_uploader(
+        "Upload transactions CSV *(max file size: 5 GB)*", type=["csv"]
+    )
 
     # Determine data source
     if use_demo and demo_path.exists():
