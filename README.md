@@ -189,8 +189,18 @@ train/test file pair — a realistic production scenario.
 (PCA-anonymized features V1-V28). This demonstrates the cost-sensitive approach
 generalizes beyond the Sparkov dataset.
 
-To run: download `creditcard.csv` to `data/raw/`, then `make benchmark-ulb`.
-Results are written to `reports/benchmark_ulb.json`.
+Download `creditcard.csv` to `data/raw/` or set `ULB_DATA` env var.
+Results: `reports/benchmark_ulb.json`.
+
+| Metric | Sparkov (primary) | ULB (benchmark) |
+|--------|:-----------------:|:---------------:|
+| PR-AUC | 0.905 | *(run `make benchmark-ulb`)* |
+| ROC-AUC | 0.998 | *(run `make benchmark-ulb`)* |
+| KS | 0.961 | *(run `make benchmark-ulb`)* |
+| Dollars saved | $1,251,293 | *(run `make benchmark-ulb`)* |
+
+*Download `creditcard.csv` from [Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud),
+place in `data/raw/`, and run `make benchmark-ulb` to fill ULB column.*
 
 ## How every Kiro feature is used
 
