@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Keep docs in sync on task completion",
+      "trigger": "PostTaskExec",
+      "description": "Keep docs and reports in sync when a spec task is completed",
+      "action": {
+        "type": "agent",
+        "prompt": "A spec task was just completed. Update the README results tables and any affected file in `reports/` so documentation reflects the current code and metrics. If `reports/evaluation.json` exists, regenerate the model card via the `model-card` skill. Never invent numbers — read them from `reports/evaluation.json`. Keep the executive summary's headline as a dollar figure."
+      }
+    }
+  ]
+}

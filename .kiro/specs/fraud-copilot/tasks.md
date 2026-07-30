@@ -6,7 +6,7 @@
 - [x] 4. Agent orchestration with decision trace (`copilot/investigate.py`)
 - [x] 5. Demo writing `reports/investigations.json`
 - [x] 6. Tests: retrieval relevance + grounded/traced disposition
-- [ ] 7. Swap in an embedding retriever (Bedrock/Anthropic) behind `get_retriever()`
-- [ ] 8. Port orchestration to a LangGraph StateGraph (keep the output contract)
-- [ ] 9. Add a Streamlit "analyst" tab: enter a txn, see disposition + citations + trace
+- [x] 7. Swap in an embedding retriever (Bedrock/Anthropic) behind `get_retriever()`
+- [x] 8. Port orchestration to a LangGraph StateGraph (keep the output contract)
+- [x] 9. Add a Streamlit "analyst" tab: enter a txn, see disposition + citations + trace
 - [ ] 10. Evaluate copilot: agreement with labels on a held-out set of flagged txns

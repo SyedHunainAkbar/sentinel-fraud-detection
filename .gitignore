@@ -1,6 +1,7 @@
-# Data — never commit the real dataset (only data/sample/ is allowed)
+# Data — never commit the real dataset (only data/sample/ and data/policies/ are allowed)
 data/*
 !data/sample/
+!data/policies/
 !data/README.md
 
 # Trained artifacts

@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Pre-commit PII & secret scan",
+      "trigger": "PreToolUse",
+      "description": "Scans staged changes for PII, secrets, large files, or raw data only when a git commit or push is executed",
+      "matcher": "execute_pwsh",
+      "action": {
+        "type": "command",
+        "command": "python -c \"import json,sys; data=json.loads(sys.stdin.read()); cmd=data.get('tool_input',{}).get('command',''); exit(0) if 'git commit' not in cmd and 'git push' not in cmd else None; import subprocess,os,re; result=subprocess.run(['git','diff','--cached','--name-only'],capture_output=True,text=True,cwd=data.get('cwd','.')); files=[f for f in result.stdout.strip().split(chr(10)) if f]; errors=[]; [errors.append(f'BLOCKED: {f} - raw data must not be committed') for f in files if f.startswith('data/') and not f.startswith('data/sample/')]; [errors.append(f'BLOCKED: {f} - file too large (>5MB)') for f in files if os.path.isfile(f) and os.path.getsize(f)>5*1024*1024]; diff=subprocess.run(['git','diff','--cached'],capture_output=True,text=True,cwd=data.get('cwd','.')).stdout; pii=re.compile(r'(AKIA[0-9A-Z]{16}|sk-[a-zA-Z0-9]{20,}|kaggle\\\\.json|\\\\.env|\\\\b\\\\d{15,19}\\\\b)'); matches=pii.findall(diff); [errors.append(f'BLOCKED: possible secret/PII: {m[:30]}') for m in matches[:5]]; print(chr(10).join(errors),file=sys.stderr) if errors else None; sys.exit(2 if errors else 0)\"",
+        "timeout": 30
+      }
+    }
+  ]
+}

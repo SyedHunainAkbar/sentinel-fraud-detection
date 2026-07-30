@@ -45,13 +45,33 @@ def monte_carlo_loss(y_prob, amount, threshold, n_sims=2000, seed=42):
 
     A cross-check on the bootstrap: simulate whether each transaction is fraud using the
     model's own probability, then sum amounts for simulated frauds below threshold.
+
+    Only transactions below the threshold can contribute undetected loss, so we filter
+    first to keep memory usage manageable on large datasets.
     """
     rng = np.random.default_rng(seed)
     y_prob = np.asarray(y_prob)
     amount = np.asarray(amount, dtype=float)
-    below = y_prob < threshold
-    draws = rng.random((n_sims, len(y_prob))) < y_prob
-    return (draws & below).astype(float) @ amount
+
+    # Only sub-threshold transactions can be undetected
+    below_mask = y_prob < threshold
+    prob_below = y_prob[below_mask]
+    amt_below = amount[below_mask]
+
+    if len(prob_below) == 0:
+        return np.zeros(n_sims)
+
+    # Process in chunks to limit memory (max ~200M elements per chunk)
+    chunk_size = max(1, 200_000_000 // len(prob_below))
+    results = []
+    remaining = n_sims
+    while remaining > 0:
+        batch = min(chunk_size, remaining)
+        draws = rng.random((batch, len(prob_below))) < prob_below
+        results.append(draws.astype(np.float32) @ amt_below)
+        remaining -= batch
+
+    return np.concatenate(results)
 
 
 def loss_risk_summary(y_true, y_prob, amount, threshold, alpha=0.95, seed=42) -> dict:
