@@ -372,6 +372,10 @@ def _render_executive_tab() -> None:
     st.subheader("Cost vs. decision threshold")
     if "cost_curve" in rep:
         curve = pd.DataFrame(rep["cost_curve"]).set_index("threshold")
+        # Downsample to max 200 points to avoid freezing the browser
+        if len(curve) > 200:
+            step = max(1, len(curve) // 200)
+            curve = curve.iloc[::step]
         st.line_chart(curve)
 
     st.caption(
