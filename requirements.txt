@@ -1,4 +1,7 @@
-# Streamlit Cloud only needs these (streamlit_app.py is self-contained)
-# For full development: pip install -r requirements-full.txt
+# Streamlit Cloud — pinned to match the environment the model was pickled in
 streamlit>=1.33
 pandas>=2.0
+numpy>=1.24
+scikit-learn==1.9.0
+xgboost==3.3.0
+joblib>=1.3

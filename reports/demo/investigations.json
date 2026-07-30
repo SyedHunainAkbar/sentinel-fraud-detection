@@ -1,0 +1,150 @@
+[
+  {
+    "transaction_id": "3abff75e07e041f7c4b5188c0146edcf",
+    "probability": 0.999927282333374,
+    "recommendation": "escalate",
+    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 37 recent txns; median amt $73. Escalation warranted per playbook.",
+    "citations": [
+      "01_fraud_typologies.md#2",
+      "01_fraud_typologies.md#4",
+      "01_fraud_typologies.md#1"
+    ],
+    "confidence": 0.8,
+    "trace": [
+      {
+        "tool": "score_transaction",
+        "output": "probability=1.000"
+      },
+      {
+        "tool": "get_customer_history",
+        "output": "37 recent txns; median amt $73"
+      },
+      {
+        "tool": "retrieve_policy",
+        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#4, 01_fraud_typologies.md#1"
+      },
+      {
+        "tool": "draft_disposition",
+        "output": "escalate (fallback)"
+      }
+    ]
+  },
+  {
+    "transaction_id": "4d1fdd8eb40c93c605909223b4d05ba4",
+    "probability": 0.9998685121536255,
+    "recommendation": "escalate",
+    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 28 recent txns; median amt $54. Escalation warranted per playbook.",
+    "citations": [
+      "01_fraud_typologies.md#2",
+      "01_fraud_typologies.md#4",
+      "01_fraud_typologies.md#1"
+    ],
+    "confidence": 0.8,
+    "trace": [
+      {
+        "tool": "score_transaction",
+        "output": "probability=1.000"
+      },
+      {
+        "tool": "get_customer_history",
+        "output": "28 recent txns; median amt $54"
+      },
+      {
+        "tool": "retrieve_policy",
+        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#4, 01_fraud_typologies.md#1"
+      },
+      {
+        "tool": "draft_disposition",
+        "output": "escalate (fallback)"
+      }
+    ]
+  },
+  {
+    "transaction_id": "c92fabaf967b7445d734d814e6b55339",
+    "probability": 0.9998642206192017,
+    "recommendation": "escalate",
+    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 26 recent txns; median amt $71. Escalation warranted per playbook.",
+    "citations": [
+      "01_fraud_typologies.md#2",
+      "01_fraud_typologies.md#3"
+    ],
+    "confidence": 0.8,
+    "trace": [
+      {
+        "tool": "score_transaction",
+        "output": "probability=1.000"
+      },
+      {
+        "tool": "get_customer_history",
+        "output": "26 recent txns; median amt $71"
+      },
+      {
+        "tool": "retrieve_policy",
+        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#3"
+      },
+      {
+        "tool": "draft_disposition",
+        "output": "escalate (fallback)"
+      }
+    ]
+  },
+  {
+    "transaction_id": "042ad4eb854d85b1602e6f8110c82f56",
+    "probability": 0.999862790107727,
+    "recommendation": "escalate",
+    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 17 recent txns; median amt $23. Escalation warranted per playbook.",
+    "citations": [
+      "01_fraud_typologies.md#2",
+      "01_fraud_typologies.md#3"
+    ],
+    "confidence": 0.8,
+    "trace": [
+      {
+        "tool": "score_transaction",
+        "output": "probability=1.000"
+      },
+      {
+        "tool": "get_customer_history",
+        "output": "17 recent txns; median amt $23"
+      },
+      {
+        "tool": "retrieve_policy",
+        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#3"
+      },
+      {
+        "tool": "draft_disposition",
+        "output": "escalate (fallback)"
+      }
+    ]
+  },
+  {
+    "transaction_id": "3b7c3a3dd370f323e6aa30a25d8a6824",
+    "probability": 0.9998562335968018,
+    "recommendation": "escalate",
+    "rationale": "High model probability (1.00) and the pattern matches 'Geographic impossibility'. History: 23 recent txns; median amt $64. Escalation warranted per playbook.",
+    "citations": [
+      "01_fraud_typologies.md#2",
+      "01_fraud_typologies.md#4",
+      "01_fraud_typologies.md#1"
+    ],
+    "confidence": 0.8,
+    "trace": [
+      {
+        "tool": "score_transaction",
+        "output": "probability=1.000"
+      },
+      {
+        "tool": "get_customer_history",
+        "output": "23 recent txns; median amt $64"
+      },
+      {
+        "tool": "retrieve_policy",
+        "output": "01_fraud_typologies.md#2, 01_fraud_typologies.md#4, 01_fraud_typologies.md#1"
+      },
+      {
+        "tool": "draft_disposition",
+        "output": "escalate (fallback)"
+      }
+    ]
+  }
+]
