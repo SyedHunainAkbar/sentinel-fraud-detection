@@ -16,18 +16,33 @@ def _fallback(prob, history_summary, retrieved) -> dict:
     """Rule-grounded disposition when no LLM is configured."""
     citations = [r.chunk.id for r in retrieved]
     top = retrieved[0].chunk.heading if retrieved else "no matching policy"
+
+    # Format history conditionally
+    if "no prior history" in history_summary.lower():
+        hist_clause = "No prior history is on file for this card."
+    else:
+        hist_clause = f"Customer history: {history_summary}."
+
     if prob >= 0.8 and retrieved:
         rec, conf = "escalate", 0.8
-        why = (f"High model probability ({prob:.2f}) and the pattern matches '{top}'. "
-               f"History: {history_summary}. Escalation warranted per playbook.")
+        why = (
+            f"Model probability is {prob:.0%} — well above the escalation threshold. "
+            f"The pattern matches '{top}'. {hist_clause} "
+            f"Escalation warranted per playbook."
+        )
     elif prob >= 0.4:
         rec, conf = "request_info", 0.55
-        why = (f"Moderate probability ({prob:.2f}); signals are mixed given history "
-               f"({history_summary}). Verify with customer before adverse action.")
+        why = (
+            f"Model probability is {prob:.0%}; signals are mixed. "
+            f"{hist_clause} "
+            f"Verify with customer before adverse action."
+        )
     else:
         rec, conf = "clear", 0.7
-        why = (f"Low probability ({prob:.2f}) and consistent with history "
-               f"({history_summary}). No typology strongly matches.")
+        why = (
+            f"Model probability is {prob:.0%} — below the escalation threshold. "
+            f"{hist_clause} No typology strongly matches."
+        )
     return {"recommendation": rec, "rationale": why, "citations": citations,
             "confidence": conf, "source": "fallback"}
 

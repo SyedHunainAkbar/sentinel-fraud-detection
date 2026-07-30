@@ -212,22 +212,38 @@ def _render_csv_mode(model, fb) -> None:
         "probabilities and flags alerts above the threshold you set."
     )
 
-    # Template download
+    # Template + demo downloads
+    col_dl1, col_dl2 = st.columns(2)
     template_path = APP_ASSETS / "upload_template.csv"
     if template_path.exists():
-        st.download_button(
-            "Download schema template (CSV)",
-            data=template_path.read_bytes(),
-            file_name="upload_template.csv",
-            mime="text/csv",
-        )
+        with col_dl1:
+            st.download_button(
+                "Download the CSV template",
+                data=template_path.read_bytes(),
+                file_name="upload_template.csv",
+                mime="text/csv",
+            )
+
+    demo_path = APP_ASSETS / "demo_upload.csv"
+    use_demo = False
+    if demo_path.exists():
+        with col_dl2:
+            use_demo = st.button(
+                "Score a bundled sample (300 real transactions)",
+            )
 
     uploaded = st.file_uploader("Upload transactions CSV", type=["csv"])
-    if uploaded is None:
-        return
 
-    df = pd.read_csv(uploaded)
-    st.write(f"Uploaded **{len(df):,}** rows")
+    # Determine data source
+    if use_demo and demo_path.exists():
+        df = pd.read_csv(demo_path)
+        n_fraud = int(df.get("is_fraud", pd.Series([0])).sum())
+        st.write(f"Loaded bundled sample: **{len(df):,}** rows ({n_fraud} known fraud)")
+    elif uploaded is not None:
+        df = pd.read_csv(uploaded)
+        st.write(f"Uploaded **{len(df):,}** rows")
+    else:
+        return
 
     # Validate schema
     missing = validate_columns(df)
@@ -267,7 +283,7 @@ def _render_csv_mode(model, fb) -> None:
     c1, c2, c3 = st.columns(3)
     c1.metric("Transactions scored", f"{len(df):,}")
     c2.metric("Flagged as fraud", f"{n_flagged:,}")
-    c3.metric("Total $ at risk", f"${dollars_at_risk:,.0f}")
+    c3.metric("Total $ flagged", f"${dollars_at_risk:,.0f}")
     st.caption(f"Scored with: {source} | Threshold: {threshold:.2f}")
 
     # Top flagged rows
