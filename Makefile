@@ -40,6 +40,9 @@ shap:             ## SHAP explainability -> reports/shap_summary.json + plots
 copilot:          ## Run the RAG + agent investigation demo -> reports/investigations.json
 	python -m sentinel.copilot.demo
 
+copilot-eval:     ## Evaluate copilot agreement with labels -> reports/copilot_evaluation.json
+	python -m sentinel.copilot.evaluate_copilot
+
 dashboard:        ## Launch the Streamlit executive dashboard
 	streamlit run src/sentinel/serving/dashboard.py
 

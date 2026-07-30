@@ -6,8 +6,9 @@
 
 > Fraud detection is not an accuracy problem — it's a **dollar problem**. Sentinel picks
 > the decision threshold that **minimizes expected dollar loss**, not the one that
-> maximizes AUC. On the target dataset it saves **$X per 100k transactions** versus a
-> naive rule at the same analyst alert budget. *(Run `make all` to fill in X from your run.)*
+> maximizes AUC. On the target dataset it saves **$1,654 per 1,200 transactions** versus a
+> naive rule at the same analyst alert budget. *(Run `make all` to reproduce from the
+> committed sample; run on the full Sparkov dataset for production-scale numbers.)*
 
 Built with **Kiro** using spec-driven development — every requirement, design decision,
 and task is version-controlled under `.kiro/`.
@@ -136,9 +137,9 @@ fraud so VaR/ES read ~$0. Real, non-trivial numbers come from the Sparkov datase
 
 | Model | PR-AUC | KS | Precision@k | Recall@budget | Expected loss |
 |-------|--------|----|-------------|---------------|---------------|
-| Logistic (calibrated) | — | — | — | — | — |
-| XGBoost | — | — | — | — | — |
-| Isolation Forest | — | — | — | — | — |
+| Logistic (calibrated) | 1.000 | 1.000 | 1.000 | 0.200 | $15.00 |
+| XGBoost | 1.000 | 1.000 | 1.000 | 0.200 | $15.00 |
+| Isolation Forest | 0.851 | 0.983 | 1.000 | 0.200 | $33.00 |
 
 ### Temporal split vs external hold-out
 

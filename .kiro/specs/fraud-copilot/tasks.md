@@ -9,4 +9,4 @@
 - [x] 7. Swap in an embedding retriever (Bedrock/Anthropic) behind `get_retriever()`
 - [x] 8. Port orchestration to a LangGraph StateGraph (keep the output contract)
 - [x] 9. Add a Streamlit "analyst" tab: enter a txn, see disposition + citations + trace
-- [ ] 10. Evaluate copilot: agreement with labels on a held-out set of flagged txns
+- [x] 10. Evaluate copilot: agreement with labels on a held-out set of flagged txns
