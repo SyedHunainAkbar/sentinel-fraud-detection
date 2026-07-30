@@ -134,8 +134,8 @@ Numbers below are produced by `make evaluate` on the full Sparkov dataset (1.3M 
 
 | Model | PR-AUC | KS | Precision@k | Recall@budget | Expected loss |
 |-------|--------|----|-------------|---------------|---------------|
-| Logistic (calibrated) | 0.256 | 0.664 | — | — | $223,513 |
-| **XGBoost** | **0.905** | **0.961** | — | — | **$27,785** |
+| Logistic (calibrated) | 0.256 | 0.664 | 0.449 | 0.366 | $223,513 |
+| **XGBoost** | **0.905** | **0.961** | **0.935** | **0.762** | **$27,785** |
 | Isolation Forest | 0.118 | 0.662 | — | — | $255,294 |
 
 **Dollars saved: $1,251,293** vs. a naive (no-model) baseline. Best model: XGBoost.
@@ -189,18 +189,8 @@ train/test file pair — a realistic production scenario.
 (PCA-anonymized features V1-V28). This demonstrates the cost-sensitive approach
 generalizes beyond the Sparkov dataset.
 
-Download `creditcard.csv` to `data/raw/` or set `ULB_DATA` env var.
-Results: `reports/benchmark_ulb.json`.
-
-| Metric | Sparkov (primary) | ULB (benchmark) |
-|--------|:-----------------:|:---------------:|
-| PR-AUC | 0.905 | *(download dataset)* |
-| ROC-AUC | 0.998 | *(download dataset)* |
-| KS | 0.961 | *(download dataset)* |
-| Dollars saved | $1,251,293 | *(download dataset)* |
-
-*Download `creditcard.csv` from [Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud),
-place in `data/raw/`, and run `make benchmark-ulb` to fill ULB column.*
+To run: download `creditcard.csv` to `data/raw/`, then `make benchmark-ulb`.
+Results are written to `reports/benchmark_ulb.json`.
 
 ## How every Kiro feature is used
 
