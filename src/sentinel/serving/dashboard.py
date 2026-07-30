@@ -213,7 +213,7 @@ def _render_csv_mode(model, fb) -> None:
     )
 
     # Template + demo downloads
-    col_dl1, col_dl2 = st.columns(2)
+    col_dl1, col_dl2, col_dl3 = st.columns(3)
     template_path = APP_ASSETS / "upload_template.csv"
     if template_path.exists():
         with col_dl1:
@@ -225,28 +225,100 @@ def _render_csv_mode(model, fb) -> None:
             )
 
     demo_path = APP_ASSETS / "demo_upload.csv"
-    use_demo = False
     if demo_path.exists():
         with col_dl2:
-            use_demo = st.button(
-                "Score a bundled sample (300 real transactions)",
-            )
+            if st.button("Score a bundled sample (300 real transactions)"):
+                _score_and_store(pd.read_csv(demo_path), model, fb, "bundled sample")
+
+    with col_dl3:
+        if st.button("Clear results"):
+            st.session_state.pop("scored_df", None)
+            st.session_state.pop("scored_src", None)
+            st.rerun()
 
     uploaded = st.file_uploader(
         "Upload transactions CSV *(max file size: 5 GB)*", type=["csv"]
     )
 
-    # Determine data source
-    if use_demo and demo_path.exists():
-        df = pd.read_csv(demo_path)
-        n_fraud = int(df.get("is_fraud", pd.Series([0])).sum())
-        st.write(f"Loaded bundled sample: **{len(df):,}** rows ({n_fraud} known fraud)")
-    elif uploaded is not None:
-        df = pd.read_csv(uploaded)
-        st.write(f"Uploaded **{len(df):,}** rows")
-    else:
+    # If a new file is uploaded, score it
+    if uploaded is not None:
+        upload_id = f"{uploaded.name}_{uploaded.size}"
+        if st.session_state.get("_upload_id") != upload_id:
+            df = pd.read_csv(uploaded)
+            _score_and_store(df, model, fb, f"upload ({uploaded.name})")
+            st.session_state["_upload_id"] = upload_id
+
+    # Render results from session_state (persists across slider changes)
+    if "scored_df" not in st.session_state:
         return
 
+    df = st.session_state["scored_df"]
+    source = st.session_state["scored_src"]
+
+    # Threshold slider — changing this does NOT rescore, just reflags
+    threshold = st.slider(
+        "Alert threshold", 0.01, 0.99, 0.30,
+        help="Transactions scoring above this are flagged as potential fraud.",
+    )
+
+    # Recompute flagged column at current threshold (cheap boolean op)
+    probs = df["fraud_probability"].values
+    flagged = probs >= threshold
+    df = df.copy()
+    df["flagged"] = flagged
+
+    n_flagged = int(flagged.sum())
+    dollars_flagged = float(df.loc[df["flagged"], "amt"].sum()) if "amt" in df.columns else 0
+    has_labels = "is_fraud" in df.columns
+
+    # Metrics row
+    if has_labels:
+        y_true = df["is_fraud"].astype(int).values
+        tp = int((flagged & (y_true == 1)).sum())
+        fp = int((flagged & (y_true == 0)).sum())
+        fn = int((~flagged & (y_true == 1)).sum())
+        total_fraud = int(y_true.sum())
+        precision = tp / max(tp + fp, 1)
+        recall = tp / max(total_fraud, 1)
+
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Caught", f"{tp} of {total_fraud} known frauds")
+        c2.metric("False alarms", f"{fp:,}")
+        c3.metric("Missed", f"{fn:,}")
+        c4.metric("Total $ flagged", f"${dollars_flagged:,.0f}")
+
+        pc1, pc2 = st.columns(2)
+        pc1.metric("Precision @ threshold", f"{precision:.1%}")
+        pc2.metric("Recall @ threshold", f"{recall:.1%}")
+    else:
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Transactions scored", f"{len(df):,}")
+        c2.metric("Flagged as fraud", f"{n_flagged:,}")
+        c3.metric("Total $ flagged", f"${dollars_flagged:,.0f}")
+
+    st.caption(f"Scored with: {source} | Threshold: {threshold:.2f}")
+
+    # Top flagged rows
+    st.subheader("Top flagged transactions")
+    top = df.sort_values("fraud_probability", ascending=False).head(20)
+    display_cols = ["trans_num", "category", "amt", "fraud_probability", "flagged"]
+    if has_labels:
+        display_cols.insert(4, "is_fraud")
+    display_cols = [c for c in display_cols if c in top.columns]
+    st.dataframe(top[display_cols], use_container_width=True)
+
+    # Download scored CSV
+    csv_out = df.to_csv(index=False).encode()
+    st.download_button(
+        "Download scored CSV",
+        data=csv_out,
+        file_name="scored_transactions.csv",
+        mime="text/csv",
+    )
+
+
+def _score_and_store(df: pd.DataFrame, model, fb, source_label: str) -> None:
+    """Score a DataFrame once and store results in session_state."""
     # Validate schema
     missing = validate_columns(df)
     if missing:
@@ -259,50 +331,19 @@ def _render_csv_mode(model, fb) -> None:
         st.warning("Limiting to first 50,000 rows for performance.")
         df = df.head(50_000)
 
-    # Threshold slider
-    threshold = st.slider(
-        "Alert threshold", 0.01, 0.99, 0.30,
-        help="Transactions scoring above this are flagged as potential fraud.",
-    )
-
-    # Score
+    # Score once
     if model is not None and fb is not None:
         with st.spinner(f"Scoring {len(df):,} transactions..."):
             probs = score_frame(df, model, fb)
-        source = "XGBoost model"
+        source_label = f"{source_label} — XGBoost model"
     else:
         probs = np.array([heuristic_score(row.to_dict()) for _, row in df.iterrows()])
-        source = "heuristic (no model loaded)"
+        source_label = f"{source_label} — heuristic"
 
     df = df.copy()
     df["fraud_probability"] = probs
-    df["flagged"] = probs >= threshold
-
-    # Summary metrics
-    n_flagged = int(df["flagged"].sum())
-    dollars_at_risk = float(df.loc[df["flagged"], "amt"].sum()) if "amt" in df else 0
-
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Transactions scored", f"{len(df):,}")
-    c2.metric("Flagged as fraud", f"{n_flagged:,}")
-    c3.metric("Total $ flagged", f"${dollars_at_risk:,.0f}")
-    st.caption(f"Scored with: {source} | Threshold: {threshold:.2f}")
-
-    # Top flagged rows
-    st.subheader("Top flagged transactions")
-    top = df.sort_values("fraud_probability", ascending=False).head(20)
-    display_cols = ["trans_num", "category", "amt", "fraud_probability", "flagged"]
-    display_cols = [c for c in display_cols if c in top.columns]
-    st.dataframe(top[display_cols], use_container_width=True)
-
-    # Download scored CSV
-    csv_out = df.to_csv(index=False).encode()
-    st.download_button(
-        "Download scored CSV",
-        data=csv_out,
-        file_name="scored_transactions.csv",
-        mime="text/csv",
-    )
+    st.session_state["scored_df"] = df
+    st.session_state["scored_src"] = source_label
 
 
 # ---------------------------------------------------------------------------
