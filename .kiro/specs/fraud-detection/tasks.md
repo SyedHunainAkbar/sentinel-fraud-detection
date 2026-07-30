@@ -8,7 +8,7 @@ these — extend and harden them rather than rewriting from scratch (saves credi
 - [x] 1.1 `config.py` with paths, `RANDOM_SEED`, `REVIEW_COST`, feature lists
 - [x] 1.2 `ingest.load_transactions` with schema + dtype validation and dedupe
 - [x] 1.3 `ingest.temporal_split` (time-ordered, no overlap)
-- [ ] 1.4 Unit test: loader rejects a missing column; split preserves time order
+- [x] 1.4 Unit test: loader rejects a missing column; split preserves time order
 
 ## 2. Features (R3)
 - [x] 2.1 Haversine distance helper (tested against known coordinates)
@@ -16,7 +16,7 @@ these — extend and harden them rather than rewriting from scratch (saves credi
 - [x] 2.3 Per-category amount z-score, fit on train only
 - [x] 2.4 Causal per-card 24h velocity
 - [x] 2.5 `FeatureBuilder.fit/transform` assembling X, y, amount
-- [ ] 2.6 Test: no-leakage check (transform uses only fitted stats); haversine correctness
+- [x] 2.6 Test: no-leakage check (transform uses only fitted stats); haversine correctness
 
 ## 3. Models (R4)
 - [x] 3.1 Calibrated logistic-regression baseline
@@ -31,17 +31,17 @@ these — extend and harden them rather than rewriting from scratch (saves credi
 - [ ] 4.4 `evaluate.py` writes `reports/evaluation.json` (single source of truth)
 
 ## 5. Explainability (R7)
-- [ ] 5.1 SHAP global importance saved to `reports/`
-- [ ] 5.2 Local explanation helper for a single transaction
+- [x] 5.1 SHAP global importance saved to `reports/`
+- [x] 5.2 Local explanation helper for a single transaction
 
 ## 6. Serving (R8)
 - [x] 6.1 FastAPI `/score` endpoint (loads model + FeatureBuilder)
 - [x] 6.2 Streamlit dashboard reading `reports/evaluation.json`
-- [ ] 6.3 API test: well-formed request returns probability + decision
+- [x] 6.3 API test: well-formed request returns probability + decision
 
 ## 7. Business reporting (R9)
 - [ ] 7.1 `model-card` skill: generate `reports/model_card.md` from `evaluation.json`
-- [ ] 7.2 Executive summary: dollars saved vs. naive rule at the alert budget, with charts
+- [x] 7.2 Executive summary: dollars saved vs. naive rule at the alert budget, with charts
 
 ## 8. Governance & polish (R10)
 - [ ] 8.1 Raise test coverage on `src/` past 80%
@@ -50,6 +50,6 @@ these — extend and harden them rather than rewriting from scratch (saves credi
 - [ ] 8.4 Final pass: confirm no data/secrets committed; seeds fixed; runs are reproducible
 
 ## 9. Stretch (only if credits remain — hand to Kiro Web)
-- [ ] 9.1 Temporal drift monitor over rolling windows (mirrors production fraud systems)
-- [ ] 9.2 Hyperparameter search for XGBoost via autonomous run
-- [ ] 9.3 Benchmark the same pipeline on the ULB PCA dataset for external credibility
+- [x] 9.1 Temporal drift monitor over rolling windows (mirrors production fraud systems)
+- [x] 9.2 Hyperparameter search for XGBoost via autonomous run
+- [x] 9.3 Benchmark the same pipeline on the ULB PCA dataset for external credibility

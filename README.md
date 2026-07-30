@@ -102,10 +102,14 @@ make setup      # install dependencies
 make sample     # generate a tiny synthetic sample (offline; for tests/CI)
 make train      # train models, persist artifacts
 make evaluate   # metrics + cost-optimal threshold -> reports/evaluation.json
+make holdout    # evaluate on external hold-out (fraudTest.csv) -> reports/holdout_eval.json
 make quant-risk # VaR/ES + out-of-time backtest -> reports/quant_risk.json
+make drift      # temporal drift monitor -> reports/drift.json
+make hyperparam # XGBoost hyperparameter search (PR-AUC) -> reports/hyperparam_search.json
+make benchmark-ulb  # benchmark on ULB PCA dataset -> reports/benchmark_ulb.json
 make copilot    # RAG + agent investigation demo -> reports/investigations.json
 make model-card # governance model card from the evaluation
-make dashboard  # Streamlit executive dashboard
+make dashboard  # Streamlit executive dashboard (3 tabs: Executive, Analyst, Risk)
 make api        # FastAPI scoring service
 make test lint  # tests with coverage + ruff
 ```
@@ -136,6 +140,75 @@ fraud so VaR/ES read ~$0. Real, non-trivial numbers come from the Sparkov datase
 | XGBoost | — | — | — | — | — |
 | Isolation Forest | — | — | — | — | — |
 
+### Temporal split vs external hold-out
+
+The pipeline trains on `fraudTrain.csv` using an internal temporal split (70% train /
+30% test by time). The **external hold-out** (`fraudTest.csv`) is a completely separate
+file never seen during training or threshold tuning — the strongest evidence of
+generalization.
+
+Run `make holdout` after `make train` to produce `reports/holdout_eval.json`.
+
+| Metric | Temporal split (in-sample test) | External hold-out (fraudTest.csv) |
+|--------|:-------------------------------:|:---------------------------------:|
+| PR-AUC | — | — |
+| ROC-AUC | — | — |
+| KS statistic | — | — |
+| Brier score | — | — |
+| Precision@k | — | — |
+| Recall@budget | — | — |
+| Optimal threshold | — | — |
+| Expected loss ($) | — | — |
+| Dollars saved ($) | — | — |
+
+*(Fill from `reports/evaluation.json` and `reports/holdout_eval.json` after running
+`make train && make evaluate && make holdout` on the full Sparkov dataset.)*
+
+**What to look for:**
+- **Stable PR-AUC / ROC-AUC** across splits confirms the model generalizes and is not
+  overfit to the temporal training window.
+- **Threshold stability** — if the cost-optimal threshold shifts significantly between
+  the internal test set and the external hold-out, that signals distribution drift or
+  overfitting to the in-sample calibration period.
+- **Dollar-loss consistency** — the headline "dollars saved" should be in the same order
+  of magnitude on both sets, confirming the cost optimization transfers.
+
+### Hyperparameter search
+
+`make hyperparam` runs a randomized search over XGBoost hyperparameters (50 iterations,
+3-fold stratified CV) optimizing **PR-AUC**. The search space covers `n_estimators`,
+`max_depth`, `learning_rate`, `subsample`, `colsample_bytree`, `min_child_weight`,
+`gamma`, `reg_alpha`, and `reg_lambda`. Results are saved to
+`reports/hyperparam_search.json` and the tuned model to `models/xgboost_tuned.joblib`.
+
+### Temporal drift monitor
+
+`make drift` runs a production-style drift monitor over rolling time windows:
+- **Feature PSI** (per-feature Population Stability Index, train vs test)
+- **Score PSI** (predicted probability distribution shift)
+- **Rolling PR-AUC** per window with degradation alerting (flags if window PR-AUC
+  drops below 80% of baseline)
+- Outputs: `reports/drift.json` with per-window metrics and categorized alerts
+
+### ULB benchmark (external credibility)
+
+`make benchmark-ulb` evaluates the same XGBoost architecture on the widely-cited
+[ULB Credit Card Fraud dataset](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
+(PCA-anonymized features V1-V28). This demonstrates the cost-sensitive approach
+generalizes beyond the Sparkov dataset.
+
+Download `creditcard.csv` to `data/raw/` or set `ULB_DATA` env var.
+Results: `reports/benchmark_ulb.json`.
+
+| Metric | Sparkov (primary) | ULB (benchmark) |
+|--------|:-----------------:|:---------------:|
+| PR-AUC | — | — |
+| ROC-AUC | — | — |
+| KS | — | — |
+| Dollars saved | — | — |
+
+*(Fill after running both pipelines on the real datasets.)*
+
 ## How every Kiro feature is used
 
 This project intentionally exercises the full Kiro workflow — see `.kiro/`:
@@ -149,6 +222,23 @@ This project intentionally exercises the full Kiro workflow — see `.kiro/`:
 | **MCP integration** | `.kiro/settings/mcp.json` | filesystem, git, and fetch servers |
 | **Powers** | (enabled via Kiro UI) | AWS Documentation Power for deployment guidance |
 | **Kiro Web** | stretch tasks | autonomous runs for hyperparameter search and drift monitoring |
+
+## MCP Servers & Powers
+
+The following MCP servers are configured in `.kiro/settings/mcp.json` and loaded at
+session start:
+
+| Server | Package | Purpose | Auto-approved |
+|--------|---------|---------|---------------|
+| **filesystem** | `mcp-server-filesystem` | File read/write/search operations | `read_file`, `list_directory` |
+| **git** | `mcp-server-git` | Version control operations | `git_status`, `git_diff`, `git_log` |
+| **fetch** | `mcp-server-fetch` | Retrieve and convert web content to Markdown | none |
+| **aws-docs** | `awslabs.aws-documentation-mcp-server` | AWS service documentation search (ECS, S3, CloudWatch, Lambda) | `search_documentation`, `get_documentation`, `recommend` |
+
+All servers run via `uvx` (requires `uv` installed: `pip install uv`).
+
+**Powers**: none currently installed via the UI panel. The `aws-docs` MCP server provides
+equivalent AWS documentation access directly.
 
 ## Repository structure
 

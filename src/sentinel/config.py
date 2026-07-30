@@ -35,6 +35,12 @@ NUMERIC_FEATURES = [
     "log_amt", "amt_z_by_cat", "velocity_24h", "city_pop_log",
 ]
 
+# Drift monitoring
+PSI_WARNING_THRESHOLD = 0.10
+PSI_CRITICAL_THRESHOLD = 0.25
+DEGRADATION_RATIO = 0.80  # flag if window PR-AUC < 80% of baseline
+DRIFT_N_WINDOWS = 6
+
 
 def data_path() -> Path:
     """Full dataset path if provided via SENTINEL_DATA, else the committed sample."""

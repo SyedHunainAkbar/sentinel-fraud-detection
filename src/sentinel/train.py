@@ -25,6 +25,9 @@ def main() -> None:
         "isolation_forest": iso_score(X_test),
     }
 
+    # Persist numeric training features as reference for drift monitoring
+    X_train_numeric = X_train[config.NUMERIC_FEATURES].to_numpy()
+
     artifacts = {
         "feature_builder": fb,
         "models": {"baseline": baseline, "xgboost": xgb, "isolation_forest": iso},
@@ -32,6 +35,8 @@ def main() -> None:
         "amount_test": amt_test.to_numpy(),
         "time_test": test_df["unix_time"].to_numpy(),
         "preds": preds,
+        "X_train_numeric": X_train_numeric,
+        "X_test_numeric": X_test[config.NUMERIC_FEATURES].to_numpy(),
         "time_range": (
             f"{df['trans_date_trans_time'].min()} .. {df['trans_date_trans_time'].max()}"
         ),

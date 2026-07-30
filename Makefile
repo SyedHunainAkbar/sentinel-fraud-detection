@@ -1,4 +1,4 @@
-.PHONY: setup sample data features train evaluate model-card dashboard api test lint all clean
+.PHONY: setup sample data features train evaluate holdout model-card drift shap hyperparam benchmark-ulb dashboard api test lint all clean
 
 setup:            ## Install dependencies
 	pip install -r requirements.txt
@@ -15,12 +15,27 @@ train:            ## Train models and persist artifacts
 evaluate:         ## Compute metrics + cost-optimal threshold -> reports/evaluation.json
 	python -m sentinel.evaluate
 
+holdout:          ## Evaluate XGBoost on external hold-out (fraudTest.csv) -> reports/holdout_eval.json
+	python -m sentinel.holdout
+
 model-card:       ## Generate reports/model_card.md from evaluation.json
 	python .kiro/skills/model-card/scripts/generate_model_card.py \
 		reports/evaluation.json reports/model_card.md
 
 quant-risk:       ## VaR/ES + out-of-time backtest -> reports/quant_risk.json
 	python -m sentinel.risk_quant.quant_report
+
+hyperparam:       ## XGBoost hyperparameter search (PR-AUC) -> reports/hyperparam_search.json
+	python -m sentinel.hyperparam
+
+benchmark-ulb:    ## Benchmark on ULB PCA creditcard dataset -> reports/benchmark_ulb.json
+	python scripts/benchmark_ulb.py
+
+drift:            ## Production drift monitor -> reports/drift.json
+	python -m sentinel.drift
+
+shap:             ## SHAP explainability -> reports/shap_summary.json + plots
+	python .kiro/skills/shap-explainability/scripts/generate_shap.py
 
 copilot:          ## Run the RAG + agent investigation demo -> reports/investigations.json
 	python -m sentinel.copilot.demo
@@ -37,7 +52,7 @@ test:             ## Run tests with coverage
 lint:             ## Ruff lint
 	ruff check src tests
 
-all: sample train evaluate quant-risk copilot model-card   ## End-to-end on the sample
+all: sample train evaluate quant-risk drift shap copilot model-card   ## End-to-end on the sample
 
 clean:
 	rm -rf models reports/*.json reports/*.md .pytest_cache .ruff_cache htmlcov .coverage
