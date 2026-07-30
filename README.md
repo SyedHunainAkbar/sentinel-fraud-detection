@@ -1,13 +1,21 @@
 # Sentinel — Cost-Sensitive Credit Card Fraud Detection
 
-[![CI](https://github.com/USERNAME/sentinel-fraud-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/USERNAME/sentinel-fraud-detection/actions)
+[![CI](https://github.com/SyedHunainAkbar/sentinel-fraud-detection/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/SyedHunainAkbar/sentinel-fraud-detection/actions)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-> Fraud detection is not an accuracy problem — it's a **dollar problem**. Sentinel picks
-> the decision threshold that **minimizes expected dollar loss**, not the one that
-> maximizes AUC. On the full Sparkov dataset it saves **$1.25M** versus a naive rule
-> at the same analyst alert budget, and **$788K on a completely unseen hold-out file**.
+**🔗 [Live app](https://sentinel-fraud-detection-syedhunainakbar.streamlit.app/) · [Code](https://github.com/SyedHunainAkbar/sentinel-fraud-detection)**
+
+> **Sentinel** is a cost-sensitive credit card fraud detection platform that selects its
+> decision threshold to **minimize expected dollar loss** rather than accuracy — avoiding
+> **$1.25M** in net fraud loss across a 389K-transaction out-of-time test set (XGBoost —
+> PR-AUC **0.91**, ROC-AUC **0.998**, KS **0.96**, Precision@k **0.94**) versus a naive
+> baseline, and **$788K on a completely unseen hold-out file**. Beyond the classifier it adds
+> a quantitative-risk layer — Value-at-Risk and Expected Shortfall on the undetected-loss
+> distribution, walk-forward backtesting with bootstrap confidence intervals, calibration
+> diagnostics, and PSI drift monitoring — plus a retrieval-augmented **agentic investigation
+> copilot** that scores a transaction, retrieves relevant policy, and drafts a cited,
+> human-in-the-loop disposition with a full decision trace.
 
 Built with **Kiro** using spec-driven development — every requirement, design decision,
 and task is version-controlled under `.kiro/`.
