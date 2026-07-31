@@ -20,6 +20,8 @@
 Built with **Kiro** using spec-driven development — every requirement, design decision,
 and task is version-controlled under `.kiro/`.
 
+*Portfolio project by Syed Hunain Akbar. Please credit if you reference or build on it.*
+
 ---
 
 ## Why this project stands out
